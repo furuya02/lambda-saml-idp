@@ -17,7 +17,7 @@
   "context": {
     "app": {
       "projectName": "lambda-saml-idb",
-      "endpoint": "https://j5wxtpyjqb7xlunadkecwlski40asdda.lambda-url.ap-northeast-1.on.aws/",
+      "endpoint": "https://xxxxxxxx.lambda-url.ap-northeast-1.on.aws/",
       "entityId": "urn:example:idp",
       "publicCrt": "lambda-saml-idp-public-crt",
       "privateKey": "lambda-saml-idp-private-key"

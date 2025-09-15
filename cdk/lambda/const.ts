@@ -10,14 +10,14 @@ export const config: CONFIG = {
 export const userAccountList: USER_ACCOUNT[] = [
   {
     name: "user1",
-    password: "xxx12#xxx",
+    password: "15234#xAx",
     role: "admin",
     displayName: "ユーザー1",
     email: "user1@example.com",
   },
   {
     name: "user2",
-    password: "xxx12#xxx",
+    password: "15ads#xxss",
     role: "admin",
     displayName: "ユーザー2",
     email: "user2@example.com",
