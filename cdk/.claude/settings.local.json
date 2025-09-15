@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Bash(touch:*)", "Bash(cd:*)"],
+    "deny": []
+  }
+}

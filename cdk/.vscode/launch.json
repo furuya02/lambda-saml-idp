@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "デバッグ実行",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "debug"],
+      "cwd": "${workspaceRoot}",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "TZ": "Asia/Tokyo",
+        "PROJECT_NAME": "saml-idp-lambda",
+        "ENDPOINT": "http://localhost:8888/",
+        "ENTITY_ID": "urn:example:idp",
+        "PUBLIC_CRT": "saml-idp-lambda-public-crt",
+        "PRIVATE_KEY": "saml-idp-lambda-private-key"
+      },
+      "console": "integratedTerminal",
+      "outputCapture": "std"
+    }
+  ]
+}
