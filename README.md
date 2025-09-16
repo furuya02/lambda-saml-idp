@@ -2,6 +2,8 @@
 
 A serverless SAML Identity Provider (IdP) implementation built with AWS Lambda and CDK, designed for development and testing with AWS Grafana workspaces and other SAML Service Providers.
 
+Blog:https://dev.classmethod.jp/articles/amazon-grafana-lambda-url-saml-2-0-identity-provider-idp/
+
 ## 🚀 Quick Start
 
 ### 1. Clone Repository
