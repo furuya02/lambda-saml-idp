@@ -1,0 +1,36 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/metadata",
+  "rawQueryString": "",
+  "headers": {
+    "x-amzn-tls-cipher-suite": "TLS_AES_128_GCM_SHA256",
+    "x-amzn-tls-version": "TLSv1.3",
+    "x-amzn-trace-id": "Root=1-68c918aa-6441b92205aa1dfd53c102b3",
+    "x-forwarded-proto": "https",
+    "host": "2m2l2tksgopmyom7fnqee766bi0dpmoo.lambda-url.ap-northeast-1.on.aws",
+    "x-forwarded-port": "443",
+    "x-forwarded-for": "151.148.37.15",
+    "accept-encoding": "gzip",
+    "user-agent": "Go-http-client/1.1"
+  },
+  "requestContext": {
+    "accountId": "anonymous",
+    "apiId": "2m2l2tksgopmyom7fnqee766bi0dpmoo",
+    "domainName": "2m2l2tksgopmyom7fnqee766bi0dpmoo.lambda-url.ap-northeast-1.on.aws",
+    "domainPrefix": "2m2l2tksgopmyom7fnqee766bi0dpmoo",
+    "http": {
+      "method": "GET",
+      "path": "/metadata",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "151.148.37.15",
+      "userAgent": "Go-http-client/1.1"
+    },
+    "requestId": "c1c79cf5-c843-4553-abed-1a7cf26ed32f",
+    "routeKey": "$default",
+    "stage": "$default",
+    "time": "16/Sep/2025:07:58:34 +0000",
+    "timeEpoch": 1758009514881
+  },
+  "isBase64Encoded": false
+}

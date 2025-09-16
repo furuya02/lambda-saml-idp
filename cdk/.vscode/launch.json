@@ -11,11 +11,11 @@
       "skipFiles": ["<node_internals>/**"],
       "env": {
         "TZ": "Asia/Tokyo",
-        "PROJECT_NAME": "saml-idp-lambda",
+        "PROJECT_NAME": "lambda-saml-idp",
         "ENDPOINT": "http://localhost:8888/",
         "ENTITY_ID": "urn:example:idp",
-        "PUBLIC_CRT": "saml-idp-lambda-public-crt",
-        "PRIVATE_KEY": "saml-idp-lambda-private-key"
+        "PUBLIC_CRT": "lambda-saml-idp-public-crt",
+        "PRIVATE_KEY": "lambda-saml-idp-private-key"
       },
       "console": "integratedTerminal",
       "outputCapture": "std"

@@ -1,10 +1,10 @@
 import { CONFIG, USER_ACCOUNT } from "./types";
 
 export const config: CONFIG = {
-  issuer: "urn:example:idp", // 必須
-  endpoint: "http://localhost:8888", // 必須
+  issuer: "urn:example:idp",
+  endpoint: "http://localhost:8888",
   acsUrl:
-    "https://g-fbfb1471e3.grafana-workspace.ap-northeast-1.amazonaws.com/saml/acs", // オプション【空白にするとacsのチェックが無効化されます】
+    "https://xxxxxxxx.grafana-workspace.ap-northeast-1.amazonaws.com/saml/acs",
 };
 
 export const userAccountList: USER_ACCOUNT[] = [

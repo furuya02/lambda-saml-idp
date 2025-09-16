@@ -77,7 +77,7 @@ export const handler = async (
     const saml = samlRequestParse(samlRequest);
 
     const authnRequest = parseSamlAuthnRequest(saml);
-    // cinfig.acsUrlが（空白ではない場合）設定されている場合、SPのリクエストからACSと比較するし、不一致の場合は受け付けない
+    // cinfig.acsUrlに設定されたURLとSPのリクエストが一致しない場合は受け付けない
     if (
       config.acsUrl !== "" &&
       config.acsUrl !== authnRequest.assertionConsumerServiceURL
