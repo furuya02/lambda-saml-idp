@@ -23,7 +23,7 @@ npm run build
 # Watch for changes and rebuild
 npm run watch
 
-# Run tests
+# Run tests (Note: No actual test implementations exist yet)
 npm run test
 
 # Deploy CDK stack
@@ -47,10 +47,11 @@ This is an AWS Lambda-based SAML 2.0 IdP implementation with the following struc
 
 ### Project Structure
 - **`cdk/lambda/`** - Lambda function source code (TypeScript)
+  - Compiled to `cdk/dist/lambda/` during build
 - **`cdk/lib/`** - CDK infrastructure definitions
 - **`cdk/bin/`** - CDK application entry point
-- **`cdk/test/`** - Test files (minimal implementation currently)
-- **`cert/`** - Certificate generation workspace
+- **`cdk/test/`** - Test directory (currently empty - no test implementations)
+- **`cert/`** - Certificate generation workspace (not tracked in git)
 
 ### Core Lambda Modules (`cdk/lambda/`)
 - **`index.ts`** - AWS Lambda handler (APIGatewayProxyEventV2)
@@ -90,14 +91,31 @@ This is an AWS Lambda-based SAML 2.0 IdP implementation with the following struc
 
 ## Configuration
 
+### CDK Context Configuration (`cdk.json`)
+```json
+{
+  "context": {
+    "app": {
+      "projectName": "lambda-saml-idp",
+      "endpoint": "https://xxxxx.lambda-url.region.on.aws/",
+      "entityId": "urn:example:idp",
+      "publicCrt": "lambda-saml-idp-public-crt",
+      "privateKey": "lambda-saml-idp-private-key"
+    }
+  }
+}
+```
+
 ### Environment Variables (set via CDK)
-- `SAML_ENDPOINT` - Lambda Function URL (auto-configured during deployment)
-- `SAML_ENTITY_ID` - SAML Entity ID (default: "urn:example:idp")
-- `CERTIFICATE_PARAMETER_NAME` - SSM parameter name for certificate (default: "/saml-idp/certificate")
+- `PROJECT_NAME` - Project identifier from CDK context
+- `ENDPOINT` - Lambda Function URL (must be updated after initial deployment)
+- `ENTITY_ID` - SAML Entity ID (default: "urn:example:idp")
+- `PUBLIC_CRT` - SSM parameter name for public certificate
+- `PRIVATE_KEY` - SSM parameter name for private key
 
 ### User Management
 Users are configured in `cdk/lambda/const.ts` with attributes:
-- `username`, `password` - For authentication
+- `name`, `password` - For authentication
 - `role`, `displayName`, `email` - Included in SAML assertions
 - All non-auth attributes are dynamically included in SAML responses
 
@@ -109,9 +127,10 @@ Service Providers are defined in `const.ts` with:
 ## Security Configuration
 
 ### Certificate Management
-- Certificates stored in AWS Systems Manager Parameter Store
-- Uses `/saml-idp/certificate` parameter by default
-- Supports both public certificate and private key in single parameter
+- Certificates stored in AWS Systems Manager Parameter Store as SecureString
+- Default parameter names:
+  - Public certificate: `lambda-saml-idp-public-crt`
+  - Private key: `lambda-saml-idp-private-key`
 - Generate certificates in `cert/` directory before deployment
 
 ### Certificate Generation Commands
@@ -124,8 +143,14 @@ rm server.csr
 
 # Store in Parameter Store
 aws ssm put-parameter \
-  --name "/saml-idp/certificate" \
+  --name "lambda-saml-idp-public-crt" \
   --value "$(cat public.crt)" \
+  --type "SecureString" \
+  --overwrite
+
+aws ssm put-parameter \
+  --name "lambda-saml-idp-private-key" \
+  --value "$(cat private.key)" \
   --type "SecureString" \
   --overwrite
 ```
@@ -137,37 +162,73 @@ aws ssm put-parameter \
 
 ## Testing
 
-Tests use Jest with ts-jest for TypeScript support:
-- Test configuration in `jest.config.js`
-- Currently minimal test implementation in `test/cdk.test.ts`
-- Run tests with `npm run test` from `cdk/` directory
+### Test Framework
+- Jest with ts-jest for TypeScript support
+- Test command: `npm run test` (from `cdk/` directory)
+- **Note**: No test implementations currently exist
+
+### Manual Testing
+After deployment:
+1. Test metadata endpoint: `curl https://your-function-url.lambda-url.region.on.aws/metadata`
+2. Configure your Service Provider with the metadata
+3. Test SSO flow through your SP
 
 ## Deployment
 
+### Initial Deployment
 1. **Install dependencies**: `cd cdk && npm install`
-2. **Generate certificates** and store in Parameter Store
+2. **Generate certificates** and store in Parameter Store (see Certificate Generation Commands)
 3. **Deploy CDK stack**: `npm run cdk deploy`
-4. **Update endpoint** (if needed) - Function URL is auto-configured
-5. **Test metadata endpoint**: `curl https://your-function-url.lambda-url.region.on.aws/metadata`
+4. **Copy Lambda Function URL** from deployment output
+5. **Update `cdk.json`** with the Lambda Function URL in `context.app.endpoint`
+6. **Redeploy**: `npm run build && npm run cdk deploy`
+
+### Subsequent Deployments
+```bash
+cd cdk
+npm run build
+npm run cdk deploy
+```
 
 ## AWS Integration
 
-- **Lambda Function** - Serverless compute with Function URL
+- **Lambda Function** - Serverless compute with Function URL (no API Gateway)
 - **Systems Manager Parameter Store** - Secure certificate storage
 - **IAM** - Least-privilege permissions for Parameter Store access
 - **CloudFormation** - Infrastructure as code via CDK
 
+## TypeScript Configuration
+
+- **Target**: ES2022
+- **Module**: NodeNext
+- **Strict Mode**: Enabled
+- **Source Directory**: `./` (relative to cdk/)
+- **Output Directory**: `./dist` (relative to cdk/)
+
 ## Common Development Issues
 
 ### Certificate Errors
-- Generate certificates in `cert/` directory using OpenSSL commands above
-- Store certificate in Parameter Store with correct parameter name
-- Ensure Lambda has SSM permissions (configured in CDK stack)
+- Ensure certificates are properly generated and stored in SSM Parameter Store
+- Verify parameter names match between CDK context and actual SSM parameters
+- Check Lambda has IAM permissions for SSM:GetParameter with decryption
 
 ### "Destination is not valid" Error  
 - Update Service Provider `acsUrl` in `cdk/lambda/const.ts` to match your SP's ACS URL
 
 ### Function URL Configuration
-- Function URL is automatically created and configured during CDK deployment
+- Function URL is automatically created during CDK deployment
 - CORS is enabled for cross-origin requests
-- Authentication is disabled for public access
+- Remember to update `cdk.json` with the Function URL after initial deployment
+
+### Build Issues
+- Always run build commands from the `cdk/` directory
+- TypeScript compilation outputs to `dist/` directory
+- Clean build: `rm -rf dist && npm run build`
+
+## Development Workflow
+
+1. Make changes to Lambda code in `cdk/lambda/`
+2. Build TypeScript: `npm run build`
+3. Test locally if needed
+4. Deploy changes: `npm run cdk deploy`
+5. Test the deployed function via its endpoints

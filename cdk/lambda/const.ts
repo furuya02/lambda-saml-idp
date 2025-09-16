@@ -2,7 +2,6 @@ import { CONFIG, USER_ACCOUNT } from "./types";
 
 export const config: CONFIG = {
   issuer: "urn:example:idp",
-  endpoint: "http://localhost:8888",
   acsUrl:
     "https://xxxxxxxx.grafana-workspace.ap-northeast-1.amazonaws.com/saml/acs",
 };

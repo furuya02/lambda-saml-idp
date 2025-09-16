@@ -1,4 +1,5 @@
 import zlib = require("zlib");
+import { v4 as uuidv4 } from "uuid";
 import { AUTHN_REQUEST } from "./types";
 import { getSecret } from "./util";
 import { SignedXml } from "xml-crypto";
@@ -156,9 +157,8 @@ export function createSAMLResponse(
   authnRequest: AUTHN_REQUEST
 ): string {
   const timestampProvider = new SamlTimestampProvider();
-
-  const id = "_77c98a6d7cf16ed2f335fdc3654b1400"; //Responseで生成
-  const assertionId = "_1cce79ceb713d22c12063183e1372545"; //Responseで生成
+  const id = uuidv4(); //Responseで生成
+  const assertionId = uuidv4(); //Responseで生成
   const XMLS_SCHEMA = "http://www.w3.org/2001/XMLSchema";
 
   const inResponseTo = authnRequest.id; // Request のIDを指定

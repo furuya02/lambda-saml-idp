@@ -1,7 +1,6 @@
 export interface CONFIG {
   issuer: string;
   acsUrl: string;
-  endpoint: string;
 }
 
 export interface USER_ACCOUNT {
