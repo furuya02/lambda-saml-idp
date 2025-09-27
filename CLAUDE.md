@@ -69,7 +69,7 @@ This is an AWS Lambda-based SAML 2.0 IdP implementation with the following struc
 - **`types.ts`** - TypeScript type definitions for SAML data structures
 
 ### Infrastructure (`cdk/lib/cdk-stack.ts`)
-- **Lambda Function** - Node.js 22.x runtime with Function URL
+- **Lambda Function** - Node.js 20.x runtime with Function URL
 - **IAM Role** - Permissions for SSM Parameter Store access
 - **Environment Variables** - Configurable endpoint, entity ID, and certificate parameter names
 - **CORS Configuration** - Enabled for cross-origin requests
@@ -83,11 +83,11 @@ This is an AWS Lambda-based SAML 2.0 IdP implementation with the following struc
 
 ### Authentication Flow
 1. Service Provider sends AuthnRequest to `/sso`
-2. Lambda validates destination and redirects to `/login` with RelayState
+2. Lambda redirects to `/login` with query parameters preserved
 3. User submits credentials via POST to `/login`
 4. Lambda validates against configured users in `const.ts`
-5. Lambda generates signed SAML response with user attributes
-6. User is redirected back to SP with SAML assertion via POST binding
+5. Lambda generates signed SAML response with authenticated user's attributes only
+6. User is redirected to SP's ACS URL (from AuthnRequest) with SAML assertion via POST binding
 
 ## Configuration
 
@@ -116,13 +116,15 @@ This is an AWS Lambda-based SAML 2.0 IdP implementation with the following struc
 ### User Management
 Users are configured in `cdk/lambda/const.ts` with attributes:
 - `name`, `password` - For authentication
-- `role`, `displayName`, `email` - Included in SAML assertions
+- `grafana_role`, `displayName`, `email` - Included in SAML assertions
 - All non-auth attributes are dynamically included in SAML responses
+- For Amazon Grafana: Use `grafana_role: "Admin"` for admin access
 
-### Service Provider Configuration
-Service Providers are defined in `const.ts` with:
-- `name` - Identifier
-- `acsUrl` - Assertion Consumer Service URL for validation
+### ACS URL Configuration
+- `config.acsUrl` in `const.ts` can be:
+  - Set to specific URL for validation (security)
+  - Empty string `""` to accept any Service Provider's ACS URL (flexibility)
+- When empty, SAML Response uses `authnRequest.assertionConsumerServiceURL` directly
 
 ## Security Configuration
 
@@ -212,8 +214,10 @@ npm run cdk deploy
 - Verify parameter names match between CDK context and actual SSM parameters
 - Check Lambda has IAM permissions for SSM:GetParameter with decryption
 
-### "Destination is not valid" Error  
-- Update Service Provider `acsUrl` in `cdk/lambda/const.ts` to match your SP's ACS URL
+### ACS URL Configuration Issues
+- Set `config.acsUrl` to empty string `""` for flexible SP support
+- Or set to specific URL if you need validation for security
+- SAML Response destination uses SP's actual ACS URL from AuthnRequest
 
 ### Function URL Configuration
 - Function URL is automatically created during CDK deployment
