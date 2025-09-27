@@ -57,7 +57,8 @@ export const handler = async (
     };
   } else if (method === "POST" && path.startsWith("/login")) {
     const body = Buffer.from(event.body!, "base64").toString("utf-8");
-    if (!authenticateUser(body)) {
+    const accountIndex = authenticateUser(body);
+    if (accountIndex === -1) {
       const loginForm = createLoginForm(
         event.rawQueryString,
         "ユーザー名若しくは、パスワードが無効です"
@@ -91,7 +92,11 @@ export const handler = async (
       };
     }
     // SAMLResponseを生成する
-    const samlResponse = createSAMLResponse(config.issuer, authnRequest);
+    const samlResponse = createSAMLResponse(
+      config.issuer,
+      authnRequest,
+      accountIndex
+    );
     //署名する
     const signedXml = await signXML(samlResponse);
     const encodedResponse = Buffer.from(signedXml).toString("base64");
@@ -99,7 +104,9 @@ export const handler = async (
           <html>
             <head><title>Keep Calm and Single Sign-On!</title></head>
             <body>
-              <form method="post" name="hiddenform" action="${config.acsUrl}">
+              <form method="post" name="hiddenform" action="${
+                authnRequest.assertionConsumerServiceURL
+              }">
                 <input type="hidden" name="SAMLResponse" value="${encodedResponse}">
                 ${
                   relayState

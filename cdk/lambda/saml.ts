@@ -154,7 +154,8 @@ export function samlRequestParse(base64str: string): string {
 
 export function createSAMLResponse(
   entityId: string,
-  authnRequest: AUTHN_REQUEST
+  authnRequest: AUTHN_REQUEST,
+  accountIndex: number
 ): string {
   const timestampProvider = new SamlTimestampProvider();
   const id = uuidv4(); //Responseで生成
@@ -165,6 +166,7 @@ export function createSAMLResponse(
   const acsUrl = authnRequest.assertionConsumerServiceURL;
   const metadataUrl = authnRequest.issuer;
 
+  const account = userAccountList[accountIndex];
   let samlResponse = `
     <?xml version="1.0" encoding="UTF-8"?>
 <saml2p:Response xmlns:saml2p="${SAML_NAMESPACE_2_0}:protocol" xmlns:saml2="${SAML_NAMESPACE_2_0}:assertion" ID="${id}" Version="2.0" IssueInstant="${timestampProvider.getIssuedAt()}" Destination="${acsUrl}" InResponseTo="${inResponseTo}">
@@ -175,7 +177,9 @@ export function createSAMLResponse(
   <saml2:Assertion xmlns:saml2="${SAML_NAMESPACE_2_0}:assertion" ID="${assertionId}" Version="2.0" IssueInstant="${timestampProvider.getIssuedAt()}">
     <saml2:Issuer>${entityId}</saml2:Issuer>
     <saml2:Subject>
-      <saml2:NameID Format="${SAML_NAMESPACE_2_0}:nameid-format:emailAddress">admin@example.com</saml2:NameID>
+      <saml2:NameID Format="${SAML_NAMESPACE_2_0}:nameid-format:emailAddress">${
+    account.email
+  }</saml2:NameID>
       <saml2:SubjectConfirmation Method="${SAML_NAMESPACE_2_0}:cm:bearer">
         <saml2:SubjectConfirmationData NotOnOrAfter="${timestampProvider.getNotOnOrAfter()}" Recipient="${acsUrl}" InResponseTo="${inResponseTo}"/>
       </saml2:SubjectConfirmation>
@@ -190,18 +194,15 @@ export function createSAMLResponse(
         <saml2:AuthnContextClassRef>${SAML_NAMESPACE_2_0}:ac:classes:PasswordProtectedTransport</saml2:AuthnContextClassRef>
       </saml2:AuthnContext>
     </saml2:AuthnStatement>
-    <saml2:AttributeStatement>
-      </saml2:Attribute>`;
+    <saml2:AttributeStatement>`;
 
-  userAccountList.forEach((account) => {
-    Object.entries(account).forEach(([key, value]) => {
-      if (key === "user" || key === "password") return; // ユーザ名・パスワードは含めない
-      samlResponse += `
+  Object.entries(account).forEach(([key, value]) => {
+    if (key === "name" || key === "password") return; // ユーザ名・パスワードは含めない
+    samlResponse += `
       <saml2:Attribute Name="${key}" NameFormat="${SAML_NAMESPACE_2_0}:uri">
         <saml2:AttributeValue xsi:type="xs:string" xmlns:xsi="${XMLS_SCHEMA}-instance" xmlns:xs="${XMLS_SCHEMA}">${value}</saml2:AttributeValue>
       </saml2:Attribute>
       `;
-    });
   });
   samlResponse += `</saml2:AttributeStatement>
   </saml2:Assertion>

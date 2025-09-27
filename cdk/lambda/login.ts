@@ -1,20 +1,20 @@
 import { userAccountList } from "./const";
 
-export function authenticateUser(body: string): boolean {
+export function authenticateUser(body: string): number {
   const params = new URLSearchParams(body);
   const username = params.get("username");
   const password = params.get("password");
 
   if (username === null || password === null) {
-    return false;
+    return -1;
   }
-  let loginSucceeded = false;
-  userAccountList.forEach((account) => {
+  let accountIndex = -1;
+  userAccountList.forEach((account, index) => {
     if (account.name === username && account.password === password) {
-      loginSucceeded = true;
+      accountIndex = index;
     }
   });
-  return loginSucceeded;
+  return accountIndex;
 }
 
 export function createLoginForm(

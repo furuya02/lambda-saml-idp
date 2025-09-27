@@ -8,7 +8,7 @@ export interface USER_ACCOUNT {
   password: string;
   displayName: string;
   email: string;
-  role: string;
+  grafana_role: string;
 }
 
 export interface AUTHN_REQUEST {
